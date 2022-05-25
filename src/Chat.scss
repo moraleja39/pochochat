@@ -1,0 +1,32 @@
+$border: #d1dbe3;
+
+.Chat {
+  flex: 0 0 100vh;
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+
+  .text {
+    flex: 1;
+    display: flex;
+    flex-flow: column nowrap;
+    border-left: 1px solid $border;
+    border-right: 1px solid $border;
+    overflow: hidden;
+  }
+
+  .Video {
+    flex: 0 0 320px;
+  }
+}
+
+.users-list {
+
+  .ant-badge {
+    margin-right: 8px;
+  }
+}
+
+.ChatContent {
+  flex: 1;
+}

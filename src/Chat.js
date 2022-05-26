@@ -13,7 +13,7 @@ import {
     VideoCallButton
 } from "@chatscope/chat-ui-kit-react";
 import {DateTime} from "luxon";
-import Video from "./Video";
+import VideoChats from "./VideoChats";
 
 const [useUsers] = bind(ChatService.usersList$.asObservable())
 const [useMessages] = bind(ChatService.messages$.asObservable(), null)
@@ -21,6 +21,10 @@ const [useMessages] = bind(ChatService.messages$.asObservable(), null)
 function UserList() {
 
     const users = useUsers()
+
+    useEffect(() => {
+        console.log(users)
+    }, [users])
 
     const avatars = users.map(user => {
         return <Badge dot color={"green"} key={user.id}>
@@ -43,7 +47,7 @@ function ChatContent() {
 
     const msgReceiver = useMessages()
     const [msgs, setMsgs] = useState([])
-    const [grouped, setGrouped] = useState([])
+    // const [grouped, setGrouped] = useState([])
 
     useEffect(() => {
         if (msgReceiver == null) {
@@ -124,6 +128,14 @@ function ChatContent() {
         ChatService.sendMessage(msg)
     }
 
+    function toggleVideo() {
+        if (ChatService.selfVideoStream === null) {
+            ChatService.initVideo()
+        } else {
+            ChatService.stopVideo()
+        }
+    }
+
     return (
         <ChatContainer className='ChatContent'>
 
@@ -132,7 +144,7 @@ function ChatContent() {
                     <UserList />
                 </ConversationHeader.Content>
                 <ConversationHeader.Actions>
-                    <VideoCallButton title="Videollamada" />
+                    <VideoCallButton title="Videollamada" onClick={toggleVideo} />
                 </ConversationHeader.Actions>
             </ConversationHeader>
 
@@ -148,13 +160,13 @@ export default function Chat() {
     return(
         <div className='Chat'>
 
-            <Subscribe>
                 <div className="text">
-                    <ChatContent></ChatContent>
+                    <Subscribe>
+                        <ChatContent></ChatContent>
+                    </Subscribe>
                 </div>
 
-                <Video />
-            </Subscribe>
+                <VideoChats />
         </div>
     )
 }

@@ -1,5 +1,5 @@
 import "./Login.scss"
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import userContext from "./userContext";
 import {Button, Card, Input} from "antd";
 import ChatService from "./ChatService";
@@ -10,9 +10,18 @@ function Login() {
     const [value, setValue] = useState('')
 
     function handleSubmit() {
+        window.localStorage.setItem('username', value)
         ChatService.logIn(value)
         setUsername(value)
     }
+
+    useEffect(() => {
+        const saved = window.localStorage.getItem('username')
+        if (saved !== null) {
+            ChatService.logIn(saved)
+            setUsername(saved)
+        }
+    })
 
     return(
             <Card className='Login'>

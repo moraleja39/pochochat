@@ -22,7 +22,7 @@ const ChatService = {
     peerCalls: [],
 
     init() {
-        socket = io('localhost:3333')
+        socket = io('192.168.0.18:3333')
         socket.on('users-list', users => {
             console.log('got users list')
             this.users = users
@@ -33,6 +33,7 @@ const ChatService = {
             this.users.splice(this.users.findIndex(u => u.id === id))
             this.usersList$.next(clone(this.users))
             this.showSeparator(`${name} se ha desconectado`)
+            this.pullVideo(id)
         })
         socket.on('user-joined', newUser => {
             console.log(`User ${newUser.id} joined`)
@@ -45,12 +46,17 @@ const ChatService = {
             this.pushMsg(assign(msg, { type: 'message', from: name }))
         })
 
+        socket.on('video-ended', id => {
+            console.log(`video from ${id} has ended`)
+            this.pullVideo(id)
+        })
+
         // connect to peer after connecting to socket.io, to share the same user id
         socket.on('connect', me => {
             console.log('connected to socket.io')
             peer = new Peer(socket.id, {
                 path: '/peerjs',
-                host: 'localhost',
+                host: '192.168.0.18',
                 port: 3334
             })
 
@@ -60,16 +66,7 @@ const ChatService = {
                 const callerName = this.users.find(u => u.id === call.peer).name
                 call.answer()
                 call.on('stream', remoteStream => {
-                    this.receiveCall(remoteStream, callerName, call.connectionId)
-                })
-                call.on('close', () => {
-                    console.log(`${call.peer} hung up`)
-                    this.pullVideo(call.connectionId)
-                })
-                call.on('error', err => {
-                    console.log(`call error:`)
-                    console.log(err)
-                    this.pullVideo(call.connectionId)
+                    this.receiveCall(remoteStream, callerName, call.peer)
                 })
             })
         })
@@ -144,7 +141,8 @@ const ChatService = {
         this.pullVideo(this.selfVideoStream.id)
         this.selfVideoStream.getTracks().forEach(track => track.stop())
         this.selfVideoStream = null
-        // close remote calls
+        // ping through websocket so peers can remove the video
+        socket.emit('video-ended', socket.id)
     },
 
     receiveCall(stream, name, id) {

@@ -49,6 +49,10 @@ class Chat {
                 message: msg
             })
         })
+
+        user.socket.on('video-ended', id => {
+            user.socket.broadcast.emit('video-ended', id)
+        })
     }
 
     sendUsersList(user) {

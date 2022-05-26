@@ -119,7 +119,8 @@ const ChatService = {
         this.videos.unshift({
             name: this.username + " (Tú)",
             stream: this.selfVideoStream,
-            id: this.selfVideoStream.id
+            id: this.selfVideoStream.id,
+            isSelfVideo: true
         })
         this.videoStreams$.next(clone(this.videos))
         this.streamVideo()

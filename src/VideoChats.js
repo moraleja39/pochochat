@@ -5,13 +5,16 @@ import {useEffect, useRef} from "react";
 
 const [useVideos] = bind(ChatService.videoStreams$)
 
-function Video({ id, stream, name }) {
+function Video({ id, stream, name, mute = false }) {
 
     const videoEl = useRef()
 
     useEffect(() => {
         videoEl.current.srcObject = stream
-    }, [stream])
+        if (mute) {
+            videoEl.current.muted = true
+        }
+    }, [stream, mute])
 
     useEffect(() => {
         videoEl.current.addEventListener('loadedmetadata', () => {
@@ -38,7 +41,7 @@ function VideoList() {
     return (
         videos.length === 0 ? <></> :
             <div className='Video'>
-                { videos.map(v => <Video stream={v.stream} name={v.name} id={v.id} key={v.id} />) }
+                { videos.map(v => <Video stream={v.stream} name={v.name} id={v.id} mute={!!v.isSelfVideo} key={v.id} />) }
             </div>
     )
 }
